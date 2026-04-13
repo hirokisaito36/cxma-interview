@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, sans-serif; background: #f5f5f0; }
+.app { max-width: 720px; margin: 0 auto; background: #fff; }
+@media (min-width: 600px) {
+  body { padding: 24px 16px; }
+  .app { border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+}
+@media (max-width: 599px) {
+  .app { min-height: 100vh; }
+}
+.header { background: #111; color: #fff; padding: 14px 20px; }
+.header-title { font-size: 15px; font-weight: 500; }
+
+/* INTRO */
+.intro-screen { padding: 20px 16px 32px; display: flex; flex-direction: column; gap: 20px; }
+@media (min-width: 600px) { .intro-screen { padding: 24px 24px 28px; } }
+.mode-select-label { font-size: 12px; color: #666; margin-bottom: 8px; }
+.mode-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.mode-card { border: 1.5px solid #ddd; border-radius: 10px; padding: 14px; cursor: pointer; transition: all 0.15s; background: #fff; display: flex; flex-direction: column; gap: 5px; -webkit-tap-highlight-color: transparent; }
+.mode-card.selected { border-color: #c9a227; background: #fdf9ee; }
+.mode-card-icon { font-size: 20px; }
+.mode-card-title { font-size: 14px; font-weight: 500; color: #111; }
+.mode-card-sub { font-size: 11px; color: #777; line-height: 1.4; }
+.mode-card.selected .mode-card-title { color: #7a5800; }
+.mode-check { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid #ccc; margin-left: auto; display: flex; align-items: center; justify-content: center; }
+.mode-card.selected .mode-check { background: #c9a227; border-color: #c9a227; }
+.mode-check-dot { width: 6px; height: 6px; border-radius: 50%; background: #fff; opacity: 0; }
+.mode-card.selected .mode-check-dot { opacity: 1; }
+
+.field-row { display: flex; align-items: center; gap: 10px; }
+.field-label { font-size: 12px; color: #666; white-space: nowrap; width: 60px; }
+.field-input { flex: 1; border: 1px solid #ccc; border-radius: 8px; padding: 10px 12px; font-size: 16px; outline: none; -webkit-appearance: none; }
+.field-input:focus { border-color: #c9a227; }
+
+.intro-badge { display: inline-flex; align-items: center; gap: 6px; background: #fdf3d8; color: #855d0a; font-size: 11px; font-weight: 500; padding: 4px 12px; border-radius: 20px; }
+.intro-badge-dot { width: 7px; height: 7px; border-radius: 50%; background: #c9a227; animation: pulse 1.5s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.script-box { background: #f9f9f6; border-left: 3px solid #c9a227; border-radius: 0 8px 8px 0; padding: 14px 16px; }
+.script-label { font-size: 10px; font-weight: 500; color: #c9a227; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
+.script-text { font-size: 15px; color: #111; line-height: 2; }
+.script-text em { font-style: normal; font-weight: 500; color: #c9a227; }
+.start-btn { padding: 15px; font-size: 15px; font-weight: 500; border-radius: 10px; border: none; background: #111; color: #fff; cursor: pointer; width: 100%; -webkit-tap-highlight-color: transparent; }
+
+/* MAIN */
+.main-screen { display: none; flex-direction: column; }
+.progress-bar { height: 4px; background: #eee; }
+.progress-fill { height: 100%; background: #c9a227; transition: width 0.3s; }
+
+.stats-bar { padding: 10px 16px; background: #f9f9f6; border-bottom: 0.5px solid #eee; display: flex; flex-direction: column; gap: 8px; }
+@media (min-width: 600px) { .stats-bar { flex-direction: row; align-items: center; justify-content: space-between; padding: 9px 20px; } }
+.session-info { display: flex; align-items: center; gap: 8px; }
+.session-mode-badge { font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 10px; }
+.session-mode-badge.buyer { background: #e8f0fb; color: #1a4a99; }
+.session-mode-badge.seller { background: #fdf3d8; color: #855d0a; }
+.session-company { font-size: 13px; font-weight: 500; color: #111; }
+.back-btn { font-size: 11px; color: #aaa; background: none; border: none; cursor: pointer; margin-left: auto; padding: 4px 0; }
+.stats-bottom { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.stats-text { font-size: 12px; color: #666; white-space: nowrap; }
+.filter-row { display: flex; gap: 4px; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 2px; }
+.filter-row::-webkit-scrollbar { display: none; }
+.filter-btn { font-size: 11px; padding: 5px 10px; border-radius: 10px; border: 0.5px solid #ccc; background: transparent; color: #666; cursor: pointer; white-space: nowrap; -webkit-tap-highlight-color: transparent; flex-shrink: 0; }
+.filter-btn.active { background: #111; color: #fff; border-color: #111; }
+.filter-btn.service-filter.active { background: #1a4a99; border-color: #1a4a99; }
+.reset-btn { font-size: 11px; color: #aaa; background: none; border: none; cursor: pointer; padding: 4px 0; white-space: nowrap; flex-shrink: 0; }
+
+.scroll-body { overflow-y: auto; padding: 14px 16px 24px; display: flex; flex-direction: column; gap: 20px; }
+@media (min-width: 600px) { .scroll-body { padding: 16px 20px 24px; } }
+.sec-block { display: flex; flex-direction: column; gap: 6px; }
+.sec-heading { display: flex; align-items: center; gap: 10px; padding-bottom: 8px; border-bottom: 0.5px solid #eee; margin-bottom: 2px; }
+.sec-num { width: 22px; height: 22px; border-radius: 50%; background: #111; color: #fff; font-size: 10px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.sec-num.done-sec { background: #c9a227; }
+.sec-name { font-size: 13px; font-weight: 500; color: #111; flex: 1; }
+.sec-prog { font-size: 11px; color: #aaa; }
+
+.q-item { border: 0.5px solid #e5e5e5; border-radius: 10px; padding: 12px 14px; background: #fff; transition: background 0.12s; -webkit-tap-highlight-color: transparent; }
+.q-item.checked { background: #f6fbf6; }
+.q-item.skipped { background: #f8f8f8; }
+.q-item.must { border-left: 3px solid #c9a227; }
+.q-item.service { border-left: 3px solid #4a7fd4; }
+.q-row { display: flex; align-items: flex-start; gap: 12px; }
+.q-check { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid #ccc; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; transition: all 0.12s; cursor: pointer; }
+.q-item.checked .q-check { background: #4caf7d; border-color: #4caf7d; }
+.q-item.skipped .q-check { background: #ccc; border-color: #ccc; }
+.q-dot { width: 7px; height: 7px; border-radius: 50%; background: #fff; opacity: 0; }
+.q-item.checked .q-dot { opacity: 1; }
+.q-skip-line { width: 8px; height: 2px; background: #fff; opacity: 0; border-radius: 1px; }
+.q-item.skipped .q-skip-line { opacity: 1; }
+.q-body { flex: 1; min-width: 0; cursor: pointer; }
+.q-badge { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 500; margin-bottom: 4px; }
+.q-badge.must-badge { background: #fdf3d8; color: #855d0a; }
+.q-badge.service-badge { background: #e8f0fb; color: #1a4a99; }
+.q-text { font-size: 14px; color: #111; line-height: 1.5; }
+.q-item.checked .q-text { color: #aaa; text-decoration: line-through; }
+.q-item.skipped .q-text { color: #bbb; text-decoration: line-through; }
+.q-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; margin-top: 1px; }
+.q-skip-btn { font-size: 11px; color: #bbb; border: 0.5px solid #ddd; border-radius: 6px; padding: 3px 8px; background: #fff; cursor: pointer; white-space: nowrap; -webkit-tap-highlight-color: transparent; transition: all 0.12s; }
+.q-skip-btn:hover { border-color: #aaa; color: #888; }
+.q-item.skipped .q-skip-btn { background: #eee; color: #888; border-color: #ccc; }
+.expand-btn { font-size: 13px; color: #aaa; flex-shrink: 0; margin-top: 1px; padding: 0 4px; cursor: pointer; }
+.q-subs { display: none; margin-top: 10px; padding-top: 10px; border-top: 0.5px solid #eee; flex-direction: column; gap: 4px; }
+.q-item.expanded .q-subs { display: flex; }
+.q-sub-item { font-size: 13px; color: #777; padding: 3px 0 3px 12px; border-left: 2px solid #eee; line-height: 1.5; }
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header"><span class="header-title">CXMA 面談シート</span></div>
+
+  <div class="intro-screen" id="intro-screen">
+    <div>
+      <div class="mode-select-label">面談の種類を選んでください</div>
+      <div class="mode-cards">
+        <div class="mode-card selected" id="card-buyer" onclick="selectMode('buyer')">
+          <div style="display:flex;align-items:center;justify-content:space-between;"><div class="mode-card-icon">🏢</div><div class="mode-check"><div class="mode-check-dot"></div></div></div>
+          <div class="mode-card-title">買い手面談</div>
+          <div class="mode-card-sub">M&A買収を検討している企業へのヒアリング</div>
+        </div>
+        <div class="mode-card" id="card-seller" onclick="selectMode('seller')">
+          <div style="display:flex;align-items:center;justify-content:space-between;"><div class="mode-card-icon">🤝</div><div class="mode-check"><div class="mode-check-dot"></div></div></div>
+          <div class="mode-card-title">売り手面談</div>
+          <div class="mode-card-sub">事業・会社の売却を検討しているオーナーへのヒアリング</div>
+        </div>
+      </div>
+    </div>
+    <div class="field-row">
+      <span class="field-label">企業名</span>
+      <input class="field-input" id="company-input" type="text" placeholder="例：株式会社〇〇" oninput="updateScript()" />
+    </div>
+    <div>
+      <div class="intro-badge"><div class="intro-badge-dot"></div>録音スタート後に読み上げ</div>
+      <div style="height:10px"></div>
+      <div class="script-box">
+        <div class="script-label">読み上げスクリプト</div>
+        <div class="script-text">「本日は <em id="sc-company">＿＿＿</em> 様との<br><em id="sc-type">買い手</em>ヒアリング面談です。<br>CommerceX M&A、齋藤が担当いたします。」</div>
+      </div>
+    </div>
+    <button class="start-btn" onclick="startInterview()">面談を開始する →</button>
+  </div>
+
+  <div class="main-screen" id="main-screen">
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
+    <div class="stats-bar">
+      <div class="session-info">
+        <span class="session-mode-badge" id="session-badge"></span>
+        <span class="session-company" id="session-company"></span>
+        <button class="back-btn" onclick="backToIntro()">← 戻る</button>
+      </div>
+      <div class="stats-bottom">
+        <span class="stats-text" id="stats-text"></span>
+        <div class="filter-row">
+          <button class="filter-btn active" onclick="setFilter('all')" id="f-all">すべて</button>
+          <button class="filter-btn" onclick="setFilter('must')" id="f-must">必須のみ</button>
+          <button class="filter-btn" onclick="setFilter('undone')" id="f-undone">未完のみ</button>
+          <button class="filter-btn service-filter" onclick="setFilter('service')" id="f-service">自社サービス</button>
+        </div>
+        <button class="reset-btn" onclick="resetAll()">リセット</button>
+      </div>
+    </div>
+    <div class="scroll-body" id="scroll-body"></div>
+  </div>
+</div>
+
+<script>
+const DATA = {
+  buyer: [
+    { title: "基本情報・現状把握", qs: [
+      { t: "事業内容を教えてください", must: true, subs: ["主力商品・サービス", "ビジネスモデル（モール/自社EC/卸）", "主要顧客・ターゲット層"] },
+      { t: "直近の業績（売上・利益）は？", must: true, subs: [] },
+      { t: "御社の強みと弱み・課題はどこですか？", must: false, subs: ["競合との差別化ポイント", "今後の成長上の障壁"] },
+      { t: "M&Aの意思決定者（株主）は誰ですか？", must: true, subs: ["株主構成・持株比率"] },
+      { t: "過去のM&A経験はありますか？", must: false, subs: ["買収した企業・規模・結果", "PMIの経験有無"] },
+    ]},
+    { title: "M&A戦略・目的", qs: [
+      { t: "なぜM&Aをしたいのですか？", must: true, subs: ["オーガニック成長との優先順位"] },
+      { t: "3〜5年後に目指す事業像・ポートフォリオは？", must: true, subs: [] },
+      { t: "M&Aで達成したい目的は何ですか？", must: true, subs: ["売上・シェア拡大", "新規事業・新市場参入", "技術・ノウハウ・人材獲得", "サプライチェーン強化", "コスト削減・規模の経済"] },
+    ]},
+    { title: "ターゲット企業の条件", qs: [
+      { t: "希望する業種・業態はどれですか？", must: true, subs: ["EC・D2C・EC支援・SaaS等", "希望商品カテゴリー・顧客層", "販路のこだわり（モール/自社EC/卸/店舗）"] },
+      { t: "希望地域にこだわりはありますか？", must: false, subs: [] },
+      { t: "対象企業の規模感を教えてください", must: true, subs: ["売上規模（下限・上限）", "従業員数へのこだわり", "収益性の最低基準（営業利益率・EBITDA）", "赤字企業の検討可否"] },
+      { t: "投資可能額と評価基準を教えてください", must: true, subs: ["絶対額の上限", "EV/EBITDA倍率の目安", "純資産・自己資本比率の最低ライン"] },
+      { t: "経営者・キーマンの残留は必要ですか？", must: false, subs: [] },
+      { t: "社風・企業文化で重視する点は？", must: false, subs: [] },
+    ]},
+    { title: "スキーム・資金・シナジー", qs: [
+      { t: "希望するスキームと支配比率は？", must: true, subs: ["株式譲渡 / 事業譲渡の優先順位", "マジョリティ必須か、マイノリティも可か"] },
+      { t: "買収資金の調達方法は？", must: true, subs: ["自己資金 / 借入 / 増資の割合"] },
+      { t: "PMIを主導できる人材・体制はありますか？", must: true, subs: [] },
+      { t: "期待するシナジーを教えてください", must: false, subs: ["売上シナジー（クロスセル・顧客基盤活用）", "コストシナジー（共同購買・拠点統廃合）", "シナジー実現の想定タイムライン"] },
+    ]},
+    { title: "意思決定・スケジュール", qs: [
+      { t: "案件検討から最終決定までの社内フローは？", must: true, subs: ["必要な承認（取締役会・株主総会等）"] },
+      { t: "DD体制（社内/外部専門家）はありますか？", must: true, subs: [] },
+      { t: "買収完了の希望時期は？", must: true, subs: [] },
+    ]},
+    { title: "補足確認", qs: [
+      { t: "並行して検討中の案件はありますか？", must: false, subs: [] },
+      { t: "他のM&A仲介会社との契約状況は？", must: true, subs: [] },
+      { t: "情報管理上の制約はありますか？", must: false, subs: ["社内限定開示など"] },
+    ]},
+    { title: "自社サービス", qs: [
+      { t: "買収後のPMI支援に関心はありますか？（RECORE・Sobaniグループ）", must: false, subs: ["EC運営の内製化支援", "物流・システム・人材の統合支援"], service: true },
+      { t: "案件ソーシング代行サービスに関心はありますか？", must: false, subs: ["希望条件に合う売り手候補を当社が継続的にリストアップ・提案"], service: true },
+    ]},
+  ],
+  seller: [
+    { title: "会社基本情報", qs: [
+      { t: "会社名・代表者名・設立年月・所在地を確認", must: true, subs: [] },
+      { t: "資本金・従業員数（正社員/パート/役員）・決算月", must: true, subs: [] },
+      { t: "主要取引金融機関・株主構成を確認", must: true, subs: [] },
+    ]},
+    { title: "事業概要", qs: [
+      { t: "業種・業態と主要事業内容を教えてください", must: true, subs: ["主力商品・サービス", "ビジネスモデル（モール/自社EC/卸/店舗）"] },
+      { t: "主要取引先・顧客と主要仕入先は？", must: true, subs: [] },
+      { t: "強み・競争優位性はどこですか？", must: true, subs: [] },
+      { t: "課題・リスクを教えてください", must: false, subs: [] },
+      { t: "許認可・免許・特許・商標等はありますか？", must: true, subs: ["ブランドの商標登録状況", "医療機器等の特殊許認可"] },
+      { t: "拠点・店舗数と所在地は？", must: false, subs: [] },
+    ]},
+    { title: "財務状況", qs: [
+      { t: "直近3期の売上高・営業利益・経常利益を確認", must: true, subs: ["売上総利益（粗利）", "進行期の見通し"] },
+      { t: "役員報酬・減価償却費・借入金残高・純資産を確認", must: true, subs: [] },
+      { t: "財務上の特記事項はありますか？", must: true, subs: ["簿外債務", "節税目的の処理", "役員借入金"] },
+    ]},
+    { title: "売却理由・希望条件", qs: [
+      { t: "売却を考えた理由・背景を教えてください", must: true, subs: ["経営者本人の意向（引退・次のチャレンジ等）", "事業上の課題・タイミング"] },
+      { t: "売却の緊急度はどれくらいですか？", must: true, subs: ["急ぎ（3ヶ月以内）/ 半年以内 / 1年以内 / 相手次第"] },
+      { t: "希望譲渡価格と根拠・期待値は？", must: true, subs: [] },
+      { t: "希望スキームは？（株式譲渡/事業譲渡）", must: true, subs: [] },
+      { t: "引き継ぎ期間の希望は？", must: true, subs: [] },
+      { t: "従業員の雇用維持・商号存続の希望は？", must: false, subs: ["必須 / 希望 / 相談可 / 特になし"] },
+      { t: "その他の希望条件はありますか？", must: false, subs: [] },
+    ]},
+    { title: "組織・人事", qs: [
+      { t: "組織図はありますか？キーパーソンは誰ですか？", must: true, subs: ["右腕・幹部スタッフの業務内容", "業務委託・外注の状況"] },
+      { t: "後継者の有無と人材の課題は？", must: false, subs: [] },
+      { t: "就業規則・未払残業等の労務リスクは？", must: true, subs: [] },
+    ]},
+    { title: "不動産・設備・法務", qs: [
+      { t: "事務所・店舗は自社所有ですか、賃借ですか？", must: false, subs: ["賃借の場合：契約満了時期"] },
+      { t: "主要設備・リース契約の有無は？", must: false, subs: [] },
+      { t: "係争中の訴訟・COC条項付契約はありますか？", must: true, subs: [] },
+      { t: "反社会的勢力との関係はありませんか？", must: true, subs: [] },
+    ]},
+    { title: "買い手への希望・スケジュール", qs: [
+      { t: "希望する買い手像・避けたい買い手像は？", must: true, subs: ["同業種への売却可否"] },
+      { t: "情報開示の範囲制限はありますか？", must: false, subs: [] },
+      { t: "必要書類の提供期限と次回面談予定を確認", must: true, subs: [] },
+      { t: "他のM&A仲介会社との契約状況は？", must: true, subs: [] },
+    ]},
+    { title: "自社サービス", qs: [
+      { t: "売却前のバリューアップ支援（AI導入）に関心はありますか？", must: false, subs: ["業務自動化・EC運営効率化によるEBITDA改善", "売却価値を高めてからのM&A実行も可能"], service: true },
+    ]},
+  ]
+};
+
+let mode='buyer', state={}, expanded={}, filter='all';
+// state[key] = undefined(未回答) | 'checked' | 'skipped'
+function key(si,qi){return mode+'-'+si+'-'+qi;}
+function secs(){return DATA[mode];}
+
+function selectMode(m){
+  mode=m;
+  document.getElementById('card-buyer').classList.toggle('selected',m==='buyer');
+  document.getElementById('card-seller').classList.toggle('selected',m==='seller');
+  updateScript();
+}
+function updateScript(){
+  const v=document.getElementById('company-input').value.trim();
+  document.getElementById('sc-company').textContent=v||'＿＿＿';
+  document.getElementById('sc-type').textContent=mode==='buyer'?'買い手':'売り手';
+}
+function startInterview(){
+  const company=document.getElementById('company-input').value.trim()||'（企業名未入力）';
+  const badge=document.getElementById('session-badge');
+  badge.textContent=mode==='buyer'?'買い手面談':'売り手面談';
+  badge.className='session-mode-badge '+mode;
+  document.getElementById('session-company').textContent=company;
+  document.getElementById('intro-screen').style.display='none';
+  document.getElementById('main-screen').style.display='flex';
+  render();
+}
+function backToIntro(){
+  document.getElementById('main-screen').style.display='none';
+  document.getElementById('intro-screen').style.display='flex';
+}
+function setFilter(f){
+  filter=f;
+  ['all','must','undone','service'].forEach(x=>document.getElementById('f-'+x).classList.toggle('active',x===f));
+  render();
+}
+function render(){
+  const sections=secs();
+  const total=sections.reduce((a,s)=>a+s.qs.length,0);
+  const done=sections.reduce((a,s,si)=>a+s.qs.filter((_,qi)=>state[key(si,qi)]==='checked'||state[key(si,qi)]==='skipped').length,0);
+  const pct=total>0?Math.round(done/total*100):0;
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('stats-text').textContent=done+' / '+total+' 問 ('+pct+'%)';
+  document.getElementById('scroll-body').innerHTML=sections.map((sec,si)=>{
+    const secDone=sec.qs.filter((_,qi)=>state[key(si,qi)]==='checked'||state[key(si,qi)]==='skipped').length;
+    const allDone=secDone===sec.qs.length;
+    const qHtml=sec.qs.map((q,qi)=>{
+      const k=key(si,qi);
+      const st=state[k];
+      const isChecked=st==='checked', isSkipped=st==='skipped', isExpanded=!!expanded[k], hasSubs=q.subs&&q.subs.length>0;
+      const hide=(filter==='must'&&!q.must&&!q.service)||(filter==='undone'&&(isChecked||isSkipped))||(filter==='service'&&!q.service);
+      const cls='q-item'+(isChecked?' checked':isSkipped?' skipped':'')+(q.service?' service':q.must?' must':'')+(isExpanded?' expanded':'')+(hide?' hidden':'');
+      const badge=q.service?'<span class="q-badge service-badge">自社サービス</span>':q.must?'<span class="q-badge must-badge">必須</span>':'';
+      const checkInner=isSkipped?'<div class="q-skip-line"></div>':'<div class="q-dot"></div>';
+      const skipLabel=isSkipped?'該当なし ✓':'－ 該当なし';
+      return '<div class="'+cls+'"><div class="q-row"><div class="q-check" onclick="toggleCheck('+si+','+qi+',event)">'+checkInner+'</div><div class="q-body" onclick="toggleCheck('+si+','+qi+',event)">'+badge+'<div class="q-text">'+q.t+'</div>'+(hasSubs?'<div class="q-subs">'+q.subs.map(s=>'<div class="q-sub-item">'+s+'</div>').join('')+'</div>':'')+'</div><div class="q-actions">'+(hasSubs?'<div class="expand-btn" onclick="toggleExpand('+si+','+qi+',event)">'+(isExpanded?'▲':'▼')+'</div>':'')+'<button class="q-skip-btn" onclick="toggleSkip('+si+','+qi+',event)">'+skipLabel+'</button></div></div></div>';
+    }).join('');
+    return '<div class="sec-block"><div class="sec-heading"><div class="sec-num'+(allDone?' done-sec':'')+'">'+(si+1)+'</div><span class="sec-name">'+sec.title+'</span><span class="sec-prog">'+secDone+'/'+sec.qs.length+'</span></div>'+qHtml+'</div>';
+  }).join('');
+}
+function toggleCheck(si,qi,e){
+  if(e.target.classList.contains('expand-btn')||e.target.classList.contains('q-skip-btn')||e.target.classList.contains('q-skip-line')) return;
+  const k=key(si,qi);
+  state[k]=state[k]==='checked'?undefined:'checked';
+  render();
+}
+function toggleSkip(si,qi,e){
+  e.stopPropagation();
+  const k=key(si,qi);
+  state[k]=state[k]==='skipped'?undefined:'skipped';
+  render();
+}
+function toggleExpand(si,qi,e){
+  e.stopPropagation();
+  expanded[key(si,qi)]=!expanded[key(si,qi)];
+  render();
+}
+function resetAll(){state={};expanded={};render();}
+updateScript();
+</script>
+</body>
+</html>
